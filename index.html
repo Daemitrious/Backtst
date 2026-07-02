@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Бектестер стратегии</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="appShell">
+    <aside class="sidebar panel">
+      <section class="settings">
+        <div class="sectionTitle">
+          <h2>Настройки</h2>
+        </div>
+        <div class="viewModeSwitch" aria-label="Режим интерфейса">
+          <button type="button" id="uiSimpleBtn" class="active">Основное</button>
+          <button type="button" id="uiAdvancedBtn">Проверка</button>
+        </div>
+
+        <label for="symbol">Торговая пара</label>
+        <div class="inputWithIcon">
+          <span>₿</span>
+          <input id="symbol" value="BTCUSDT" list="symbols" autocomplete="off" spellcheck="false" />
+        </div>
+        <datalist id="symbols">
+          <option value="BTCUSDT"></option>
+          <option value="ETHUSDT"></option>
+          <option value="SOLUSDT"></option>
+          <option value="BNBUSDT"></option>
+          <option value="XRPUSDT"></option>
+          <option value="DOGEUSDT"></option>
+          <option value="BTCUSDC"></option>
+        </datalist>
+
+        <div class="advOnly">
+          <label for="source">Данные</label>
+          <select id="source">
+            <option value="auto" selected>Авто</option>
+            <option value="bybit">Bybit</option>
+            <option value="binance">Binance</option>
+            <option value="csv">CSV</option>
+            <option value="demo">Демо</option>
+          </select>
+        </div>
+
+        <div class="grid2">
+          <div><label for="dateFrom">Дата от</label><input id="dateFrom" type="date" value="2024-06-01" /></div>
+          <div><label for="dateTo">Дата до</label><input id="dateTo" type="date" value="2024-06-03" /></div>
+        </div>
+        <div class="presetRow" aria-label="Быстрый выбор периода">
+          <button type="button" data-preset="3d">3 дня</button>
+          <button type="button" data-preset="7d">7 дней</button>
+          <button type="button" data-preset="14d">14 дней</button>
+        </div>
+
+        <div id="csvBox" class="csvBox hidden advOnly">
+          <label for="csvFile">CSV-файл с 1m-свечами</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv" />
+          <small>Формат: timestamp, open, high, low, close, volume. Данные должны быть минутными.</small>
+        </div>
+
+        <div class="divider"></div>
+
+        <label for="triggerPct">Процент срабатывания стратегии</label>
+        <input id="triggerPct" type="number" step="0.01" value="0.20" />
+
+        <label for="positionSize">Размер сделки в USDT</label>
+        <input id="positionSize" type="number" step="1" min="0" value="10" />
+
+        <label for="startBalance">Стартовый баланс USDT</label>
+        <input id="startBalance" type="number" step="1" min="0" value="100" />
+
+        <div class="grid2 advOnly">
+          <div><label for="feePct">Комиссия %</label><input id="feePct" type="number" step="0.01" value="0.10" /></div>
+          <div><label for="slippagePct">Проскальз. %</label><input id="slippagePct" type="number" step="0.01" value="0.00" /></div>
+        </div>
+
+        <div class="formulaBox advOnly">
+          <b>BUY</b>
+          <code>(Current Price − Low) / Current Price × 100 ≥ trigger %</code>
+          <b>SELL</b>
+          <code>(High − Current Price) / Current Price × 100 ≥ trigger %</code>
+        </div>
+
+        <button id="runBtn" class="primary">▶ Запустить</button>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <section class="metrics panel" aria-label="Метрики бектеста">
+        <div class="metric"><span>Итог</span><b id="mPnl">—</b><small id="mPnlPct">—</small></div>
+        <div class="metric"><span>Баланс</span><b id="mReturn">—</b><small id="mAnnual">старт —</small></div>
+        <div class="metric"><span>Успешность</span><b id="mWin">—</b><small id="mWinSub">—</small></div>
+        <div class="metric"><span>Просадка</span><b id="mDd">—</b><small id="mDdUsd">—</small></div>
+        <div class="metric"><span>Сделки</span><b id="mTrades">—</b><small id="mDirs">—</small></div>
+        <div class="metric"><span>Фактор</span><b id="mPf">—</b><small>прибыль / убыток</small></div>
+      </section>
+
+      <section class="insight panel" aria-label="Краткий вывод бектеста">
+        <div>
+          <b id="resultVerdict">Готово к проверке</b>
+          <span id="resultNarrative">Запустите расчёт и посмотрите результат стратегии.</span>
+        </div>
+      </section>
+
+      <section class="chartPanel panel">
+        <div class="chartTop">
+          <div class="chartTitleGroup">
+            <span id="chartTitle">BTCUSDT · 4H</span>
+            <em id="sourceLabel" class="hidden">ожидание данных</em>
+          </div>
+
+        </div>
+
+        <div id="chartMeta" class="chartMeta">
+          <span>Откр. <b id="metaOpen">—</b></span>
+          <span>Макс. <b id="metaHigh">—</b></span>
+          <span>Мин. <b id="metaLow">—</b></span>
+          <span>Цена <b id="metaClose">—</b></span>
+          <span>BUY <b id="metaFast">—</b></span>
+          <span>SELL <b id="metaSlow">—</b></span>
+          <span>1m <b id="metaTrend">—</b></span>
+          <span>4H <b id="metaVolume">—</b></span>
+        </div>
+
+        <div class="canvasWrap">
+          <canvas id="chart"></canvas>
+          <div id="selectionDock" class="selectionDock hidden" aria-label="Сохранённые участки"></div>
+        </div>
+      </section>
+
+      <section class="bottom panel">
+        <div class="tabs">
+          <button class="active" data-tab="trades">Сделки</button>
+          <button data-tab="equity">Капитал</button>
+          <button data-tab="details">Итог</button>
+          <button class="advOnly" data-tab="check">Проверка</button>
+          <button class="advOnly" data-tab="manual">Сверка</button>
+        </div>
+        <div id="tabTrades" class="tab"></div>
+        <div id="tabEquity" class="tab hidden"><canvas id="equity"></canvas></div>
+        <div id="tabDetails" class="tab hidden"></div>
+        <div id="tabQuality" class="tab hidden"></div>
+        <div id="tabLogs" class="tab hidden"></div>
+      </section>
+    </main>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>
