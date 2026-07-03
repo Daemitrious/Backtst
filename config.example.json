@@ -1,0 +1,26 @@
+{
+  "symbol": "BTCUSDT",
+  "mode": "backtest",
+  "source": "auto",
+  "history_from": "2017-01-01",
+  "working_candle": "4H built from 1m",
+  "trigger_pct": 0.20,
+  "position_size_usdt": 10,
+  "start_balance_usdt": 100,
+  "fee_pct": 0.10,
+  "slippage_pct": 0.00,
+  "profit_guard": true,
+  "execution_model": {
+    "bid_ask_spread_pct": 0.020,
+    "min_order_usdt": 5,
+    "liquidity_participation_pct": 2.0,
+    "volume_slippage_pct": 0.030,
+    "api_latency_ms": 250,
+    "partial_fill_mode": "off"
+  },
+  "validation": {
+    "walk_forward_train_pct": 70,
+    "out_of_sample_pct": 30,
+    "unit_tests": true
+  }
+}
